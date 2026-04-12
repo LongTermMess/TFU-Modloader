@@ -1,0 +1,50 @@
+{
+  "ModId": "TFUSandboxMod",
+  "ModName": "Sandbox Mod",
+  "ModAuthor": "Cornflakes",
+  "ModVersion": "1.0.0",
+  "ModDescription": "Modloader for The Force Unleashed",
+  "ModDll": "TFUSandboxMod.dll",
+  "ModIcon": "Preview.png",
+  "ModR2RManagedDll32": "x86/TFUSandboxMod.dll",
+  "ModR2RManagedDll64": "x64/TFUSandboxMod.dll",
+  "ModNativeDll32": "",
+  "ModNativeDll64": "",
+  "Tags": [],
+  "CanUnload": false,
+  "HasExports": false,
+  "IsLibrary": false,
+  "ReleaseMetadataFileName": "TFUSandboxMod.ReleaseMetadata.json",
+  "IgnoreRegexes": [
+    ".*\\.json"
+  ],
+  "IncludeRegexes": [
+    "\\.deps\\.json",
+    "\\.runtimeconfig\\.json",
+    "ModConfig\\.json"
+  ],
+  "PluginData": {
+    "GitHubDependencies": {
+      "IdToConfigMap": {
+        "reloaded.sharedlib.hooks": {
+          "Config": {
+            "UserName": "Sewer56",
+            "RepositoryName": "Reloaded.SharedLib.Hooks.ReloadedII",
+            "UseReleaseTag": true,
+            "AssetFileName": "reloaded.sharedlib.hooks.zip"
+          },
+          "ReleaseMetadataName": "Sewer56.Update.ReleaseMetadata.json"
+        }
+      }
+    }
+  },
+  "IsUniversalMod": false,
+  "ModDependencies": [
+    "reloaded.sharedlib.hooks"
+  ],
+  "OptionalDependencies": [],
+  "SupportedAppId": [
+    "swtfu.exe"
+  ],
+  "ProjectUrl": "https://github.com/LongTermMess/TFU-Modloader"
+}
