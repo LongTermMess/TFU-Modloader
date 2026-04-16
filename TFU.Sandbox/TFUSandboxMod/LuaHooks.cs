@@ -28,6 +28,13 @@ namespace TFUSandboxMod
         delegate void Scripts_SendMsg_Delegate(int param_1);
         static IHook<Scripts_SendMsg_Delegate> Scripts_SendMsg_Hook;
 
+        [Function(CallingConventions.Stdcall)]
+        delegate void ronin_loadworld_delegate(string param_1, uint param_2, uint param_3, uint param_4);
+        static ronin_loadworld_delegate ronin_loadworld;
+
+
+
+
         public static void Init(IReloadedHooks hooks, ILogger _logger)
         {
             //luaexec 0x4d2550
@@ -40,14 +47,25 @@ namespace TFUSandboxMod
             LuaRegister_Hook = hooks.CreateHook<LuaRegister_Delegate>(LuaRegister, 0x4d2120).Activate();
             //LuaGetStringParam_Hook = hooks.CreateHook<LuaGetStringParam_Delegate>(LuaGetStringParam, 0x616ca0).Activate();
             Scripts_SendMsg_Hook = hooks.CreateHook<Scripts_SendMsg_Delegate>(Scripts_SendMsg, 0x4f46a0).Activate();
+            ronin_loadworld = hooks.CreateWrapper<ronin_loadworld_delegate>(0x478520, out _);
+
+            InputHooks.InputDown += LuaInputHook;
+        }
 
 
+        static void LuaInputHook(ConsoleKey key)
+        {
+            logger.WriteLine("LuaInputHook");
+            if(key == ConsoleKey.F6)
+            {
+                ronin_loadworld("ledge_grab", 1, 1, 1);
+            }
         }
 
 
         static void LuaRegister(string category, string name, void* function, string description)
         {
-            //logger.WriteLine($"{category}.{name}, {(long)function:X8}");
+            //logger.WriteLine($"{category}.{name}, \"{description}\" - 0x{(long)function:X4}");
             LuaRegister_Hook.OriginalFunction(category, name, function, description);
         }
         static int LuaGetStringParam(int param_1, int paramIdx, int param_3)

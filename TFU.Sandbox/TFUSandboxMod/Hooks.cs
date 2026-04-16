@@ -46,6 +46,10 @@ namespace TFUSandboxMod
         delegate void AssetPathToSandboxPath_Delegate(char* param_1, char* param_2, uint param_3, bool param_4);
         static IHook<AssetPathToSandboxPath_Delegate> AssetPathToSandboxPath_Hook;
 
+        [Function(CallingConventions.Stdcall)]
+        delegate uint WndProc_Delegate(uint param_1, uint param_2, uint param_3, long param_4);
+        static IHook<WndProc_Delegate> WndProc_Hook;
+
         public static void Init(IReloadedHooks hooks, ILogger _logger)
         {
             memory = Memory.Instance;
@@ -59,6 +63,7 @@ namespace TFUSandboxMod
             nuint AddDiskAssetToCatalog_Address = memory.Read<nuint>(0xf349ec);
             nuint AssetCatalogInit_Address = memory.Read<nuint>(0xf347f8);
             nuint CacheAsset_Address = memory.Read<nuint>(0xf34ba8);
+            nuint WndProc_Address = 0xbab410;
 
             nuint LoadAsset_Address = memory.Read<nuint>(0xf34ce4);
             nuint GetAsset_Address = memory.Read<nuint>(0xf34914);
@@ -74,10 +79,30 @@ namespace TFUSandboxMod
 
             AddDiskAssetToCatalog = hooks.CreateWrapper<AddDiskAssetToCatalog_Delegate>((long)AddDiskAssetToCatalog_Address, out _);
 
-            //Patching out a check for if tabbed out, experimental fix for loads failing after a tab out
-            //memory.SafeWrite(0x6a3d9f, new byte[] { 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 });
-            //memory.SafeWrite(0x6a3ece, new byte[] { 0x90, 0x90 });
+
+            WndProc_Hook = hooks.CreateHook<WndProc_Delegate>(WndProc, (long)WndProc_Address).Activate();
         }
+
+        static public bool NoTabOutFreeze = false;
+        static uint WndProc(uint param_1, uint param_2, uint param_3, long param_4)
+        {
+            if(NoTabOutFreeze && new uint[]{ 0x8, 0x6, 0x1c }.Contains(param_2))
+            {
+                return 0;
+            }
+            else if(param_2 == 0x100)
+            {
+                InputHooks.InputDown.Invoke((ConsoleKey)param_3);
+                if (InputHooks.InputLock) { return 0; }
+            }
+            else if (param_2 == 0x101)
+            {
+                InputHooks.InputUp.Invoke((ConsoleKey)param_3);
+                if (InputHooks.InputLock) { return 0; }
+            }
+            return WndProc_Hook.OriginalFunction(param_1, param_2, param_3, param_4);
+        }
+
 
         static void AssetPathToSandboxPath(char* param_1, char* param_2, uint param_3, bool param_4)
         {

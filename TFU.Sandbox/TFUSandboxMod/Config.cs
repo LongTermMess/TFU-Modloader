@@ -6,11 +6,31 @@ namespace TFUSandboxMod.Configuration
 {
     public class Config : Configurable<Config>
     {
-
-        [DisplayName("Prologue Menu Unlock")]
-        [Description("Enables customisation and mission selection during the prologue")]
+        [DisplayName("Don't freeze on tab out")]
+        [Description("")]
+        [Category("Misc")]
         [DefaultValue(true)]
-        public bool PrologueUnlock { get; set; } = true;
+        public bool NoTabOutFreeze { get; set; } = true;
+
+
+
+
+        [DisplayName("Menu Unlock")]
+        [Description("Enables customisation and mission selection during the prologue")]
+        [Category("Prologue Changes")]
+        [DefaultValue(true)]
+        public bool ProloguePauseMenu { get; set; } = true;
+
+        [DisplayName("Moveset Tweaks")]
+        [Description("Builtin Mod: Modifies Vader's moveset to allow dashing and lightning")]
+        [Category("Prologue Changes")]
+        [DefaultValue(true)]
+        public bool PrologueMoveset { get; set; } = true;
+        [DisplayName("Mission Replay")]
+        [Description("Builtin Mod: Enables selecting prologue from mission selection")]
+        [Category("Prologue Changes")]
+        [DefaultValue(true)]
+        public bool PrologueReplay { get; set; } = true;
 
 
         /*

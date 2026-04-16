@@ -61,42 +61,68 @@ namespace TFUSandboxMod
             memory = Memory.Instance;
 
 
+            InputHooks.Init(_logger);
             Hooks.Init(_hooks, _logger);
+            Hooks.NoTabOutFreeze = _configuration.NoTabOutFreeze;
             LuaHooks.Init(_hooks, _logger);
 
             //bodge patch for prologue check, fix later
-            if (_configuration.PrologueUnlock) { Memory.Instance.SafeWrite(0xfb318e, new byte[] { 0 }); }
+            if (_configuration.ProloguePauseMenu) { Memory.Instance.SafeWrite(0xfb318e, new byte[] { 0 }); }
 
             _logger.WriteLine("[Sandbox] Mod Started");
 
             _modLoader.ModLoading += ModLoaded;
+
+            string modPath = _modLoader.GetDirectoryForModId(_modConfig.ModId) + "/Optional/";
+            if (_configuration.PrologueMoveset)
+            {
+                string path = modPath + "PrologueMoveset";
+                if (Directory.Exists(path))
+                {
+                    RegisterModFolder(path);
+                }
+                else { _logger.WriteLine("[Sandbox] Prologue moveset enabled but files not found"); }
+            }
+            if (_configuration.PrologueReplay)
+            {
+                string path = modPath + "PrologueReplay";
+                if (Directory.Exists(path))
+                {
+                    RegisterModFolder(path);
+                }
+                else { _logger.WriteLine("[Sandbox] Prologue replay enabled but files not found"); }
+            }
+
+
         }
 
 
         public void ModLoaded(IModV1 mod, IModConfigV1 config)
         {
-            _logger.WriteLine($"ModLoading {config.ModName}");
             string modDir = _modLoader.GetDirectoryForModId(config.ModId) + "/Sandbox/";
             if (Directory.Exists(modDir))
             {
-                _logger.WriteLine("Valid mod " + config.ModName);
-                foreach (string f in Directory.GetFiles(modDir, "*.*", SearchOption.AllDirectories))
+                //_logger.WriteLine($"Registering Dependant {config.ModName}");
+                RegisterModFolder(modDir);
+            }
+        }
+        void RegisterModFolder(string modDir)
+        {
+            foreach (string f in Directory.GetFiles(modDir, "*.*", SearchOption.AllDirectories))
+            {
+                string file = f.Replace('\\', '/');
+                string fileInternal = file.Substring(modDir.Length);
+                _logger.WriteLine(fileInternal);
+                if (!FileDictionary.ContainsKey(fileInternal))
                 {
-                    string file = f.Replace('\\', '/');
-                    string fileInternal = file.Substring(modDir.Length);
-                    _logger.WriteLine(fileInternal);
-                    if(!FileDictionary.ContainsKey(fileInternal))
-                    {
-                        FileDictionary.Add(fileInternal, file);
-                    }
-                    else
-                    {
-                        FileDictionary[fileInternal] = file;
-                    }
+                    FileDictionary.Add(fileInternal, file);
+                }
+                else
+                {
+                    FileDictionary[fileInternal] = file;
                 }
             }
         }
-
 
         public static Dictionary<string, string> FileDictionary = new Dictionary<string, string>();
 
